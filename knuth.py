@@ -40,4 +40,4 @@ print("Valor de Y en vector aleatorios = (aXsub(n-1)+c)mod m =" + str(y))
 j = (n * y) / m
 print("valor de j en vector aleatorios =[ny/m] =" + str(j))
 y = vector_bytes[j]
-print("Better Random Number  y= V [j]= en vector aleatorio " + str(y))
+print("Better Random Number  y= vector_bytes [j]= en vector aleatorio " + str(y))
