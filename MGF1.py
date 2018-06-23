@@ -6,6 +6,7 @@ from binascii import hexlify
 from hashlib import sha1
 import binascii
 import sys
+import struct
 
 print("Algoritmo de ciframiento de flujo basado en Algoritmo B - Randomizing by shuffling y a Mask Generation Function (RFC 2437)")
 try:
@@ -35,7 +36,7 @@ if not M:
 
 
 
-vector = []#vector para numeros aleatorios
+vector = []#vector para numeros aleatorios inicial
 vector.append(xo)
 for x in range(1, k):
     temporal = xo
@@ -44,28 +45,24 @@ for x in range(1, k):
     xo = valor_posicion_vector
 #print("vector inicial con PRNG ")
 #print(vector)
-#print("valores para calcular Y en vector inicial : \na= "+str(a)+"\nXsub(k-1)=vector[k - 1] = "+str(vector[k - 1])+"\nc= "+str(c)+"\nm="+str(m))
-y = ((a * vector[k - 1]) + c) % m
-#print("Valor de Y en vector inicial = (aXsub(k-1)+c)mod m =" + str(y))
-j = (k * y) / m
-#print("valor de j en vector inicial =[ky/m] =" + str(j))
-y = vector[j]
-#print("Better Random Number  y= V [j]= en vector inicial " + str(y))
+vector_bytes=[];
 n=int(math.sqrt(len(M)))#n Bytes de largo
-print("n (piso de la raiz cuadrada de la longitud del mensaje M) de bytes de largo a utilizar para encontrar el aleatorio en el vector de tamanio 1000000:  "+str(n))
-z=0#semilla Z de la MGF1
-for x in range(0,k):#buscar en el vector aleatorio un byte que tenga #n Bytes de largo
-    bytesByNumberOfVector=sys.getsizeof(vector[x]);#obtengo los bytes por cada numero aleatorio del vector
-    if bytesByNumberOfVector == n:
-        print("bytesByNumberOfVector "+str(bytesByNumberOfVector))
-        print("position of bytesByNumberOfVector "+str(x))
-        z=vector[x]#numero aleatorio de n Bytes de largo, utilicelo como semilla Z de la MGF1.# del vector sacar un numero aleatorio de n Bytes de largo
-        break;
-print("valor de z para GMF1: "+str(z))
+print("n (piso de la raiz cuadrada de la longitud del mensaje M) de bytes de largo a utilizar para encontrar los n elemento  en el vector de tamanio "+str(k)+" :  "+str(n))
+for j in range(0,n):
+    vector_bytes.append(vector[j])
+print("vector de n bytes: "+str(vector_bytes))
+bytesToHex=""
+for l in range(0,n):
+    print("byte " +str(vector_bytes[l])+" convertido a hex "+ binascii.hexlify(str(vector_bytes[l])))
+    bytesToHex+=binascii.hexlify(str(vector_bytes[l]))
+print("vector de bytes convertido a HEX: "+bytesToHex)
+
+
+Z=bytesToHex#semilla Z de la MGF1
+print("valor de Z para GMF1: "+Z)
 #inicio de GMF1
 def i2osp(integer, size=4):
     return ''.join([chr((integer >> (8 * i)) & 0xFF) for i in reversed(range(size))])#generacion una secuencia aleatoria S de Bytes delength(M) de largo.
-
 
 def mgf1(input, length, hash=hashlib.sha1):#algoritmo
     counter = 0
@@ -75,8 +72,10 @@ def mgf1(input, length, hash=hashlib.sha1):#algoritmo
         output += hash(input + C).digest()
         counter += 1
     return output[:length]
-
+#fin de GMF1
+#operacion XOR con 2 hex
 def xor_strings(mhex, shex):
+
     """
     xor two strings together by first getting their ascii code values
     and then xor'ing them
@@ -86,9 +85,9 @@ def xor_strings(mhex, shex):
     # hexlify turns the given string into a hex string
     return hexlify(''.join(chr(ord(a)^ord(b)) for a, b in zip(mhex, shex)))
 
-print "MGF1"
-shex=hexlify(mgf1(M, len(M), sha1))#recibe el texto M, length(M) de largo y tipo de cifrado
-print ("secuencia aleatoria S de Bytes delength(M) de largo: "+shex)
+print "RESULTADO DE MGF1"
+shex=hexlify(mgf1(Z, len(M), sha1))#recibe la semilla Z, length(M) de largo y tipo de cifrado
+print ("secuencia aleatoria S de Bytes de length(M) de largo: "+shex )
 mhex=binascii.hexlify(M)#convertir M en hexagesimal
 print("Texto M en hex: "+mhex)
 C=xor_strings(mhex,shex)#RESULTADO DE C, CIFRADO
