@@ -96,7 +96,7 @@ mhex=hexlify(M)#convertir M en hexagesimal
 print("Texto M en hex: "+mhex)
 C=xor_strings(mhex,shex)#RESULTADO DE C, CIFRADO
 print "Mensaje Cifrado C=M XOR S: "+C
-descifrado=xor_strings(C,shex)
+descifrado=xor_strings(C,shex)# RESULTADO DE M, DESCIFRADO
 print "Mensaje descifrado M=C XOR S en HEX: "+descifrado# RESULTADO DE M, DESCIFRADO
 print "Mensaje descifrado M=C XOR S: "+binascii.unhexlify(descifrado)# RESULTADO DE M, DESCIFRADO
 
