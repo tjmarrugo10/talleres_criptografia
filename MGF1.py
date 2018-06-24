@@ -83,14 +83,20 @@ def xor_strings(mhex, shex):
     # ord returns an integer of the ascii code of a given one char string
     # chr returns a one char string from a given ascii code value
     # hexlify turns the given string into a hex string
-    return hexlify(''.join(chr(ord(a)^ord(b)) for a, b in zip(mhex, shex)))
+    #return (''.join(chr(ord(a)^ord(b)) for a, b in zip(mhex, shex)))
+    if len(mhex) > len(shex):
+        return "".join([chr(ord(x) ^ ord(y)) for (x, y) in zip(mhex[:len(shex)], shex)])
+    else:
+        return "".join([chr(ord(x) ^ ord(y)) for (x, y) in zip(mhex, shex[:len(mhex)])])
 
 print "RESULTADO DE MGF1"
 shex=hexlify(mgf1(Z, len(M), sha1))#recibe la semilla Z, length(M) de largo y tipo de cifrado
 print ("secuencia aleatoria S de Bytes de length(M) de largo: "+shex )
-mhex=binascii.hexlify(M)#convertir M en hexagesimal
+mhex=hexlify(M)#convertir M en hexagesimal
 print("Texto M en hex: "+mhex)
 C=xor_strings(mhex,shex)#RESULTADO DE C, CIFRADO
-print "C=M XOR S: "+C
-print "M=C XOR S: "+xor_strings(binascii.hexlify(C),shex)# RESULTADO DE M, DESCIFRADO
+print "Mensaje Cifrado C=M XOR S: "+C
+descifrado=xor_strings(C,shex)
+print "Mensaje descifrado M=C XOR S en HEX: "+descifrado# RESULTADO DE M, DESCIFRADO
+print "Mensaje descifrado M=C XOR S: "+binascii.unhexlify(descifrado)# RESULTADO DE M, DESCIFRADO
 
